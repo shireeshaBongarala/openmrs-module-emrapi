@@ -18,23 +18,10 @@ import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openmrs.CareSetting;
-import org.openmrs.Concept;
-import org.openmrs.ConceptMap;
-import org.openmrs.ConceptMapType;
-import org.openmrs.ConceptName;
-import org.openmrs.ConceptReferenceTerm;
-import org.openmrs.ConceptSource;
-import org.openmrs.Drug;
-import org.openmrs.DrugOrder;
-import org.openmrs.Duration;
-import org.openmrs.Order;
-import org.openmrs.OrderFrequency;
-import org.openmrs.OrderType;
-import org.openmrs.Patient;
-import org.openmrs.Encounter;
-import org.openmrs.SimpleDosingInstructions;
+import org.openmrs.*;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.emrapi.CareSettingType;
+import org.openmrs.module.emrapi.encounter.ConceptMapper;
 import org.openmrs.module.emrapi.encounter.domain.EncounterTransaction;
 import org.openmrs.util.LocaleUtility;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -55,7 +42,7 @@ import static org.junit.Assert.assertEquals;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(LocaleUtility.class)
+@PrepareForTest({LocaleUtility.class,Context.class})
 public class DrugOrderMapper1_11Test {
 
     public static final CareSettingType OUT_PATIENT_CARE_SETTING = CareSettingType.OUTPATIENT;
@@ -67,13 +54,15 @@ public class DrugOrderMapper1_11Test {
     public static final String MOUTH_ROUTE = "mouth";
     public static final String TABLET_QUANTITY_UNIT = "TABLET";
     public static final String TWICE_A_DAY_FREQUENCY = "Twice a day";
+    public static final String HAS_SIDE_EFFECTS= "Has side effects";
+    private final String orderReasonNonCoded = "has multiple side effects";
 
     private OrderMapper1_11 drugOrderMapper111;
 
     @Before
     public void setup() {
         mockStatic(LocaleUtility.class);
-
+        mockStatic(Context.class);
         drugOrderMapper111 = new OrderMapper1_11();
     }
 
@@ -111,6 +100,9 @@ public class DrugOrderMapper1_11Test {
         assertThat(drugOrder.getInstructions(), is(equalTo("before meals")));
         assertThat(drugOrder.getCommentToFulfiller(), is(equalTo("boil in water")));
         assertThat(drugOrder.getOrderNumber(), is(equalTo("ORD-100")));
+
+        assertThat(drugOrder.getOrderReasonConcept().getName(), is(HAS_SIDE_EFFECTS));
+        assertThat(drugOrder.getOrderReasonText(),is(equalTo(orderReasonNonCoded)));
     }
 
     @Test
@@ -183,6 +175,14 @@ public class DrugOrderMapper1_11Test {
 
         order.setInstructions(instructions);
         order.setCommentToFulfiller(commentToFulfiller);
+
+        Concept openMrsConcept ;
+        openMrsConcept = concept(HAS_SIDE_EFFECTS);
+        openMrsConcept.setDatatype(new ConceptDatatype());
+        openMrsConcept.setShortName(new ConceptName(HAS_SIDE_EFFECTS, Locale.FRENCH));
+
+        order.setOrderReason(openMrsConcept);
+        order.setOrderReasonNonCoded(orderReasonNonCoded);
 
         Field field = Order.class.getDeclaredField("orderNumber");
         field.setAccessible(true);

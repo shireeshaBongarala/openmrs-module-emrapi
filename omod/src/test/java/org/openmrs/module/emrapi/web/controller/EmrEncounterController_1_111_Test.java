@@ -251,7 +251,17 @@ public class EmrEncounterController_1_111_Test extends BaseEmrControllerTest {
                 "                \"name\": \"Disposition Note\"" +
                 "            }" +
                 "        }" +
-                "    ]" +
+                "    ]," +
+                "\"drugOrders\": {" +
+                "    \"scheduledDate\": \"2015-01-11\","+
+                "    \"orderReasonConcept\": [" +
+                "         {"  +
+                "           \"concept\": {" +
+                "           \"uuid\": \"123\"," +
+                "           \"name\": \"has side effects\"" +
+                "           }" +
+                "       }],"+
+                "   \"orderReasonText\": \"has side effects\"" +
                 "}" +
                 "}";
         EncounterTransaction encounter2Response = deserialize(handle(newPostRequest("/rest/emrapi/encounter", encounter2PostData)), EncounterTransaction.class);
@@ -291,6 +301,10 @@ public class EmrEncounterController_1_111_Test extends BaseEmrControllerTest {
         assertEquals(1, fetchedDisposition.getAdditionalObs().size());
         assertEquals("Admit him to ICU.", fetchedDisposition.getAdditionalObs().get(0).getValue());
         assertEquals("Disposition Note", fetchedDisposition.getAdditionalObs().get(0).getConcept().getName());
+
+        List<EncounterTransaction.DrugOrder> fetchedDrugOrder = fetchedEncounterTransaction.getDrugOrders();
+        assertEquals("has side effects", fetchedDrugOrder.get(0).getOrderReasonConcept().getName());
+        assertEquals("has side effects", fetchedDrugOrder.get(0).getOrderReasonText());
     }
 
     private EncounterTransaction.Diagnosis getDiagnosisByUuid(List<EncounterTransaction.Diagnosis> diagnoses, String diagnosisUuid) {

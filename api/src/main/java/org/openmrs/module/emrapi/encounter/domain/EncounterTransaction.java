@@ -568,7 +568,6 @@ public class EncounterTransaction {
         private String action;
         private String commentToFulfiller;
         private Date autoExpireDate;
-
         public Date getAutoExpireDate() {
             return autoExpireDate;
         }
@@ -795,11 +794,29 @@ public class EncounterTransaction {
         private Date effectiveStartDate;
         private Date effectiveStopDate;
         private String previousOrderUuid;
-        private String orderReasonText;
         private Integer duration;
         private String durationUnits;
         private Boolean voided;
         private String voidReason;
+        private EncounterTransaction.Concept orderReasonConcept;
+        private String orderReasonText;
+
+        public String getOrderReasonText() {
+            return orderReasonText;
+        }
+
+        public void setOrderReasonText(String orderReasonText) {
+            this.orderReasonText = orderReasonText;
+        }
+
+        public Concept getOrderReasonConcept() {
+            return orderReasonConcept;
+        }
+
+        public void setOrderReasonConcept(Concept orderReasonConcept) {
+            this.orderReasonConcept = orderReasonConcept;
+        }
+
 
         public Drug getDrug() {
             return drug;
@@ -846,14 +863,6 @@ public class EncounterTransaction {
 
         public void setPreviousOrderUuid(String previousOrderUuid) {
             this.previousOrderUuid = previousOrderUuid;
-        }
-
-        public String getOrderReasonText() {
-            return orderReasonText;
-        }
-
-        public void setOrderReasonText(String orderReasonText) {
-            this.orderReasonText = orderReasonText;
         }
 
         public Integer getDuration() {
